@@ -158,6 +158,8 @@ Queries go through Grafana's Snowflake datasource (Grafana Enterprise plugin `gr
 - **List and search conversations:** List recent LLM conversations or search them with a filter expression (model, provider, agent, status, error type, eval results, and more) over a time range. Search results include error counts, rating summaries, evaluation summaries, and trace IDs.
 - **Get conversation detail:** Fetch a single conversation with all its generations, including prompts and outputs.
 - **Get generation detail and scores:** Fetch a single generation by ID, and its evaluation scores (evaluator, score key, value, passed, explanation).
+- **Inspect evaluators and templates:** Read the evaluators a score came from, the templates they were derived from, and the judge providers and models available to LLM-judge evaluators. With write tools enabled, also create, fork, test, and delete evaluators.
+- **Inspect eval rules and guards:** Read the asynchronous eval rules that bind evaluators to production traffic, and the guards (hook rules) that run inline and can warn or deny. With write tools enabled, also create, update, preview, and delete them. Writes and the non-persisting `preview_rule` and `test_evaluator` operations need the `grafana-agento11y-app.eval:write` permission, granted by the Agento11y Admin role.
 
 ### Incidents
 
@@ -377,6 +379,8 @@ Scopes define the specific resources that permissions apply to. Each action requ
 | `get_assertions`                  | Asserts                   | Get assertion summary for a given entity                                                                     | Plugin-specific permissions                            | Plugin-specific scopes                              |
 | `agento11y_manage_conversations` | Agent Observability*  | List, search, and fetch LLM conversations from Grafana Agent Observability                              | `grafana-agento11y-app.conversations:read`                 | N/A                                                 |
 | `agento11y_manage_generations` | Agent Observability*    | Fetch LLM generation details and evaluation scores from Grafana Agent Observability                     | `grafana-agento11y-app.data:read`                          | N/A                                                 |
+| `agento11y_manage_evaluators` | Agent Observability*    | Manage evaluators, evaluator templates, and the judge catalog (list, get, upsert, fork, test, delete)    | `grafana-agento11y-app.data:read` + `grafana-agento11y-app.eval:write` for mutations and tests | N/A                                                 |
+| `agento11y_manage_eval_rules` | Agent Observability*    | Manage eval rules and guards (list, get, create, update, preview, delete)                               | `grafana-agento11y-app.data:read` + `grafana-agento11y-app.eval:write` for mutations and previews | N/A                                                 |
 | `generate_deeplink`               | Navigation                | Generate accurate deeplink URLs for Grafana resources                                                        | None (read-only URL generation)                        | N/A                                                 |
 | `get_annotations`                 | Annotations               | Fetch annotations with filters                                                                               | `annotations:read`                                     | `annotations:*` or `annotations:id:123`             |
 | `create_annotation`               | Annotations               | Create a new annotation (standard or Graphite format)                                                        | `annotations:write`                                    | `annotations:*`                                     |
@@ -493,6 +497,10 @@ When `--disable-write` is enabled, the following write operations are disabled:
 **Snapshot Tools:**
 - `create_snapshot`
 - `delete_snapshot`
+
+**Agent Observability Tools:**
+- `agento11y_manage_evaluators` (upsert, delete, fork, test evaluator operations)
+- `agento11y_manage_eval_rules` (create, update, delete, preview rule and guard operations)
 
 All read operations remain available, allowing you to query dashboards, run PromQL/LogQL queries, list resources, and retrieve data.
 
